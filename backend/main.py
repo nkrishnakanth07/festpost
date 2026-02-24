@@ -8,6 +8,8 @@ import uuid
 import base64
 import requests
 from io import BytesIO
+from PIL import Image, ImageDraw, ImageFont
+import tempfile
 
 app = FastAPI(title="FestPost - AI Image Generator")
 
@@ -35,16 +37,23 @@ class ImageResponse(BaseModel):
     image_url: str
     prompt_used: str
 
-# Festival templates with prompts
+# Festival templates with prompts - AI will generate text overlays
 FESTIVAL_PROMPTS = {
-    "diwali": "Beautiful Diwali celebration with diyas, rangoli, fireworks, warm golden lighting, festive atmosphere, {business_name}, {tagline}, professional business poster",
-    "christmas": "Festive Christmas scene with decorated tree, snow, warm lights, red and green colors, holiday spirit, {business_name}, {tagline}, professional business poster",
-    "new_year": "New Year celebration with fireworks, champagne, gold and silver decorations, midnight celebration, {business_name}, {tagline}, professional business poster",
-    "holi": "Vibrant Holi festival with colorful powder, joyful celebration, bright colors, energetic atmosphere, {business_name}, {tagline}, professional business poster",
-    "eid": "Elegant Eid celebration with crescent moon, lanterns, Islamic patterns, peaceful atmosphere, {business_name}, {tagline}, professional business poster",
-    "valentine": "Romantic Valentine's Day with hearts, roses, soft pink and red colors, love theme, {business_name}, {tagline}, professional business poster",
-    "independence_day": "Patriotic Independence Day with national flag, freedom theme, proud celebration, {business_name}, {tagline}, professional business poster",
-    "ganesh_chaturthi": "Grand Ganesh Chaturthi with Lord Ganesha, flowers, traditional decorations, spiritual atmosphere, {business_name}, {tagline}, professional business poster",
+    "diwali": "Beautiful Diwali festival greeting card with 'Happy Diwali' written in large elegant golden text at center, '{business_name}' prominently displayed at bottom, {tagline}, warm golden lighting, diyas, rangoli, fireworks background, professional business poster with clear typography",
+    
+    "christmas": "Festive Christmas greeting card with 'Merry Christmas' written in large elegant text at center, '{business_name}' prominently displayed at bottom, {tagline}, decorated tree, snow, warm lights, red and green colors, holiday spirit, professional business poster with clear typography",
+    
+    "new_year": "New Year celebration greeting card with 'Happy New Year' written in large elegant text at center, '{business_name}' prominently displayed at bottom, {tagline}, fireworks, champagne, gold and silver decorations, midnight celebration, professional business poster with clear typography",
+    
+    "holi": "Vibrant Holi festival greeting card with 'Happy Holi' written in large colorful text at center, '{business_name}' prominently displayed at bottom, {tagline}, colorful powder, joyful celebration, bright colors, professional business poster with clear typography",
+    
+    "eid": "Elegant Eid celebration greeting card with 'Eid Mubarak' written in large elegant text at center, '{business_name}' prominently displayed at bottom, {tagline}, crescent moon, lanterns, Islamic patterns, peaceful atmosphere, professional business poster with clear typography",
+    
+    "valentine": "Romantic Valentine's Day greeting card with 'Happy Valentine\'s Day' written in large elegant text at center, '{business_name}' prominently displayed at bottom, {tagline}, hearts, roses, soft pink and red colors, love theme, professional business poster with clear typography",
+    
+    "independence_day": "Patriotic Independence Day greeting card with 'Happy Independence Day' written in large bold text at center, '{business_name}' prominently displayed at bottom, {tagline}, national flag, freedom theme, professional business poster with clear typography",
+    
+    "ganesh_chaturthi": "Grand Ganesh Chaturthi greeting card with 'Happy Ganesh Chaturthi' written in large elegant text at center, '{business_name}' prominently displayed at bottom, {tagline}, Lord Ganesha, flowers, traditional decorations, professional business poster with clear typography",
 }
 
 STYLE_MODIFIERS = {
