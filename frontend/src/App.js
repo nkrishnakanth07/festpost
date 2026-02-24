@@ -180,7 +180,7 @@ function App() {
               <div className="image-container">
                 <img 
                   src={generatedImage.image_url} 
-                  alt="Generated festival image"
+                  alt="Festival poster"
                   className="generated-image"
                 />
               </div>
